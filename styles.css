@@ -13,7 +13,7 @@ body {
 
 /* Contenedor principal del quiz */
 .quiz-container {
-    background-color: #ffffff;
+    background-color: #f7f9fb;
     padding: 40px;
     border-radius: 15px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
@@ -136,7 +136,7 @@ body {
 }
 .result-box h3 {
     margin-top: 0;
-    color: #13090e; /* Texto del encabezado en un tono rosado */
+    color: #d87093; /* Texto del encabezado en un tono rosado */
 }
 
 .question-box h2 {
