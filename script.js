@@ -124,7 +124,7 @@ function startQuiz() {
         if (!userLastname) document.getElementById('userLastnameInput').style.border = '2px solid #e74c3c';
         if (!userCedula) document.getElementById('userCedulaInput').style.border = '2px solid #e74c3c';
         if (!userEmail) document.getElementById('userEmailInput').style.border = '2px solid #e74c3c';
-        alert('Por favor, completa todos los datos de manera adecuada antes de comenzar el quiz.');
+        alert('Debes rellenar todos los campos correctamente antes de comenzar el examen.');
         return;
     }
 
