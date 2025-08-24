@@ -167,11 +167,11 @@ function showQuestion() {
     justificationTitle.textContent = "Justifique su respuesta";
     justificationTitle.style.marginTop = '20px';
 
-        const justificationInput = document.createElement('textarea');
-        justificationInput.classList.add('justification-area');
-        justificationInput.placeholder = "Escribe aquí tu justificación (máximo 200 letras)...";
-        justificationInput.id = `justification-${currentQuestionIndex}`;
-        justificationInput.oninput = () => updateJustificationAndCount();
+    const justificationInput = document.createElement('textarea');
+    justificationInput.classList.add('justification-area');
+    justificationInput.placeholder = "Escribe aquí tu justificación (máximo 200 letras)...";
+    justificationInput.id = `justification-${currentQuestionIndex}`;
+    justificationInput.oninput = () => updateJustificationAndCount();
     
     const wordCountDisplay = document.createElement('div');
     wordCountDisplay.classList.add('word-count');
@@ -195,15 +195,13 @@ function updateJustificationAndCount() {
     const textarea = document.getElementById(`justification-${currentQuestionIndex}`);
     const text = textarea.value;
     const charCount = text.length;
+    
     const wordCountDisplay = document.getElementById(`word-count-${currentQuestionIndex}`);
+    wordCountDisplay.textContent = `${charCount}/200 letras`;
 
-    if (charCount >= 200) {
+    if (charCount > 200) {
         textarea.value = text.substring(0, 200);
         wordCountDisplay.textContent = '200/200 letras (límite alcanzado)';
-        wordCountDisplay.style.color = 'red';
-    } else {
-        wordCountDisplay.textContent = `${charCount}/200 letras`;
-        wordCountDisplay.style.color = '';
     }
 
     if (userAnswers[currentQuestionIndex]) {
@@ -215,13 +213,7 @@ function updateJustificationAndCount() {
 
 function updateCharCount(text, displayElement) {
     const charCount = text.length;
-    if (charCount >= 200) {
-        displayElement.textContent = '200/200 letras (límite alcanzado)';
-        displayElement.style.color = 'red';
-    } else {
-        displayElement.textContent = `${charCount}/200 letras`;
-        displayElement.style.color = '';
-    }
+    displayElement.textContent = `${charCount}/200 letras`;
 }
 
 function selectAnswer(selectedIndex) {
