@@ -287,10 +287,9 @@ function showPrevQuestion() {
 function submitQuiz() {
     if (hasSubmitted) return;
     hasSubmitted = true;
-    
     clearInterval(timerInterval);
     document.removeEventListener('visibilitychange', handleVisibilityChange);
-    
+
     let totalScore = 0;
     const totalPossibleScore = quizData.length * totalPointsPerQuestion;
 
@@ -298,19 +297,14 @@ function submitQuiz() {
         const userAnswer = userAnswers[index];
         const isCorrect = userAnswer ? userAnswer.isCorrect : false;
         const userJustification = userAnswer && userAnswer.userJustification ? userAnswer.userJustification : "";
-
         const scoreSelection = isCorrect ? selectionPoints : 0;
         const scoreJustification = evaluateJustification(userJustification, q.keywords);
-
         const questionText = q.question;
         const correctText = q.answerOptions.find(opt => opt.isCorrect).text;
         const userText = userAnswer ? userAnswer.selectedText : "No respondida";
-        
         const currentQuestionScore = scoreSelection + scoreJustification;
         totalScore += currentQuestionScore;
-
         const feedbackClass = isCorrect ? 'correct' : 'incorrect';
-
         return `
             <div class="result-box">
                 <h3>Pregunta ${index + 1}: ${questionText}</h3>
@@ -325,16 +319,73 @@ function submitQuiz() {
         `;
     }).join('');
 
-    document.getElementById('quiz-content').innerHTML = `
-        <h2>Resultados</h2>
-        <p>Tu puntuación es: ${totalScore} de ${totalPossibleScore}</p>
-        ${resultHTML}
-        <button class="download-btn" onclick="downloadCsv()">Descargar Resultados</button>
-    `;
-    document.getElementById('next-btn').style.display = 'none';
-    document.getElementById('prev-btn').style.display = 'none';
-    document.getElementById('submit-btn').style.display = 'none';
-    document.getElementById('timer-display').style.display = 'none';
+    // Enviar resultados al backend y mostrar error si la cédula ya existe
+    fetch('/api/resultados', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            nombre: userName,
+            apellido: userLastname,
+            cedula: userCedula,
+            email: userEmail,
+            puntuacion: totalScore,
+            puntuacionMaxima: totalPossibleScore,
+            respuestas: quizData.map((q, index) => {
+                const userAnswer = userAnswers[index];
+                const isCorrect = userAnswer ? userAnswer.isCorrect : false;
+                const userJustification = userAnswer && userAnswer.userJustification ? userAnswer.userJustification : "";
+                const scoreSelection = isCorrect ? selectionPoints : 0;
+                const scoreJustification = evaluateJustification(userJustification, q.keywords);
+                const currentQuestionScore = scoreSelection + scoreJustification;
+                return {
+                    pregunta: q.question,
+                    respuestaUsuario: userAnswer ? userAnswer.selectedText : "No respondida",
+                    respuestaCorrecta: q.answerOptions.find(opt => opt.isCorrect).text,
+                    esCorrecta: isCorrect,
+                    justificacionUsuario: userJustification,
+                    justificacionCorrecta: q.justification,
+                    puntuacionSeleccion: scoreSelection,
+                    puntuacionJustificacion: scoreJustification,
+                    puntuacionTotalPregunta: currentQuestionScore
+                };
+            })
+        })
+    })
+    .then(res => res.json().then(data => ({ status: res.status, body: data })))
+    .then(({ status, body }) => {
+        if (status === 400) {
+            let errorDiv = document.getElementById('error-message');
+            if (!errorDiv) {
+                errorDiv = document.createElement('div');
+                errorDiv.id = 'error-message';
+                errorDiv.style.color = 'red';
+                errorDiv.style.fontWeight = 'bold';
+                errorDiv.style.margin = '20px 0';
+                document.querySelector('.quiz-container').prepend(errorDiv);
+            }
+            errorDiv.textContent = body.message;
+            document.getElementById('quiz-content').innerHTML = '';
+            document.getElementById('next-btn').style.display = 'none';
+            document.getElementById('prev-btn').style.display = 'none';
+            document.getElementById('submit-btn').style.display = 'none';
+            document.getElementById('timer-display').style.display = 'none';
+            return;
+        }
+        // Mostrar resultados normalmente
+        document.getElementById('quiz-content').innerHTML = `
+            <h2>Resultados</h2>
+            <p>Tu puntuación es: ${totalScore} de ${totalPossibleScore}</p>
+            ${resultHTML}
+            <button class="download-btn" onclick="downloadCsv()">Descargar Resultados</button>
+        `;
+        document.getElementById('next-btn').style.display = 'none';
+        document.getElementById('prev-btn').style.display = 'none';
+        document.getElementById('submit-btn').style.display = 'none';
+        document.getElementById('timer-display').style.display = 'none';
+    })
+    .catch(err => {
+        alert('Error al enviar los resultados. Intenta nuevamente.');
+    });
 }
 
 function generateCsv() {
