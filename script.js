@@ -272,59 +272,43 @@ let currentQuestionIndex = 0;
         document.getElementById('prev-btn').style.display = 'none';
         document.getElementById('submit-btn').style.display = 'none';
         document.getElementById('timer-display').style.display = 'none';
+
+        // Enviar resultados al backend en formato JSON
+        const userName = document.getElementById('userNameInput').value.trim();
+        const userLastname = document.getElementById('userLastnameInput').value.trim();
+        const userCedula = document.getElementById('userCedulaInput').value.trim();
+        const payload = {
+            nombre: userName,
+            apellido: userLastname,
+            cedula: userCedula,
+            puntuacion: totalScore,
+            puntuacionMaxima: totalPossibleScore,
+            respuestas: quizData.map((q, index) => {
+                const userAnswer = userAnswers[index];
+                return {
+                    pregunta: q.question,
+                    respuestaUsuario: userAnswer ? userAnswer.selectedText : "No respondida",
+                    respuestaCorrecta: q.answerOptions.find(opt => opt.isCorrect).text,
+                    esCorrecta: userAnswer ? userAnswer.isCorrect : false,
+                    justificacionUsuario: userAnswer && userAnswer.userJustification ? userAnswer.userJustification : "No proporcionada",
+                    justificacionCorrecta: q.justification
+                };
+            })
+        };
+        fetch('/api/resultados', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(res => res.json())
+        .then(data => {
+            console.log('Resultado guardado en backend:', data);
+        })
+        .catch(err => {
+            console.error('Error al guardar resultado:', err);
+        });
     }
 // Nueva función para generar el contenido CSV
-    function generateCsv() {
-        let csv = '\uFEFF'; // Agrega BOM para compatibilidad con caracteres especiales en Excel
-        
-        const sanitizeCsv = (text) => `"${(text + '').replace(/"/g, '""')}"`;
-
-        // Encabezados e información del usuario
-        const infoHeaders = ["Nombre", "Apellido", "Cédula"];
-        csv += infoHeaders.map(header => sanitizeCsv(header)).join(';') + '\n';
-        csv += [sanitizeCsv(userName), sanitizeCsv(userLastname), sanitizeCsv(userCedula)].join(';') + '\n\n';
-
-        // Encabezados del quiz
-        const quizHeaders = ["Pregunta", "Tu Respuesta", "Respuesta Correcta", "Puntuación", "Tu Justificación"];
-        csv += quizHeaders.map(header => sanitizeCsv(header)).join(';') + '\n';
-        
-        quizData.forEach((q, index) => {
-            const userAnswer = userAnswers[index];
-            const isCorrect = userAnswer && userAnswer.isCorrect;
-            const questionScore = isCorrect ? selectionPoints : 0;
-            
-            const row = [
-                q.question,
-                userAnswer ? userAnswer.selectedText : 'No respondida',
-                q.answerOptions.find(opt => opt.isCorrect).text,
-                questionScore,
-                userAnswer && userAnswer.userJustification ? userAnswer.userJustification : 'No proporcionada'
-            ];
-
-            const sanitizedRow = row.map(cell => sanitizeCsv(cell));
-            csv += sanitizedRow.join(';') + '\n';
-        });
-        
-        return csv;
-    }
-
-    // Nueva función para descargar el archivo
-    function downloadCsv() {
-        const csvContent = generateCsv();
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        
-        if (link.download !== undefined) {
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', `resultados_quiz_${userName}_${userLastname}.csv`);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        } else {
-            // Fallback para navegadores que no admiten el atributo download
-            alert("Tu navegador no admite la descarga automática. Por favor, copia el contenido que se mostrará a continuación y pégalo en un archivo de texto para guardarlo como .csv");
-            window.open('data:text/csv;charset=utf-8,' + escape(csvContent));
-        }
-    }
+    // ...eliminadas funciones de exportación CSV y descarga...
