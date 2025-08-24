@@ -90,7 +90,7 @@ const allQuizData = [
             {"text": "Transformar señales del dominio temporal a un espectro de frecuencias utilizando la Transformada Rápida de Fourier (FFT) en el rango de DC a 100 KHz.", "isCorrect": false},
             {"text": "Suavizar el ruido presente en las medidas a la salida del detector para una mejor visualización.", "isCorrect": false}
         ],
-        "justification": "A diferencia de un osciloscopio que visualiza la función temporal, el analizador de espectro está diseñado para representar en una pantalla las componentes espectrales de una señal de entrada de forma rápida y sencilla. Esto implica mostrar las componentes armónicas que componen una señal compleja, graficando sus amplitudes en función de su frecuencia. La composición de frecuencias de la serie de Fourier es lo que se conoce como el espectro de frecuencias de la señal. Esta capacidad fundamental permite observar y medir el nivel de la potencia y la frecuencia de las componentes espectrales, lo cual a su vez habilita otras mediciones como la estabilidad, la distorsión, el tipo de modulación y el ruido.",
+        "justification": "A diferencia de un osciloscopio que visualiza la función temporal, el analizador de espectro está diseñado para representar en una pantalla las componentes espectrales de una señal de entrada de forma rápida y sencilla. Esto implica mostrar las componentes armónicas que componen una señal compleja, graficando sus amplitudes en función de su frecuencia.",
         "keywords": ["representar", "componentes espectrales", "frecuencia", "amplitud", "pantalla"]
     }
 ];
@@ -158,11 +158,11 @@ function startQuiz() {
         alert('Por favor, completa todos los datos de manera adecuada antes de comenzar el quiz.');
         return;
     }
-    
+
     quizData = selectRandomQuestions(allQuizData, 5);
     currentQuestionIndex = 0;
     userAnswers = {};
-    
+
     document.getElementById('user-info-section').style.display = 'none';
     document.getElementById('quiz-section').style.display = 'block';
     document.getElementById('warning-message').style.display = 'block';
@@ -287,104 +287,107 @@ function showPrevQuestion() {
 function submitQuiz() {
     if (hasSubmitted) return;
     hasSubmitted = true;
+    
     clearInterval(timerInterval);
     document.removeEventListener('visibilitychange', handleVisibilityChange);
-
+    
     let totalScore = 0;
     const totalPossibleScore = quizData.length * totalPointsPerQuestion;
-    const resultHTML = quizData.map((q, index) => {
+    
+    quizData.map((q, index) => {
         const userAnswer = userAnswers[index];
         const isCorrect = userAnswer ? userAnswer.isCorrect : false;
         const userJustification = userAnswer && userAnswer.userJustification ? userAnswer.userJustification : "";
+
         const scoreSelection = isCorrect ? selectionPoints : 0;
         const scoreJustification = evaluateJustification(userJustification, q.keywords);
-        const questionText = q.question;
-        const correctText = q.answerOptions.find(opt => opt.isCorrect).text;
-        const userText = userAnswer ? userAnswer.selectedText : "No respondida";
+        
         const currentQuestionScore = scoreSelection + scoreJustification;
         totalScore += currentQuestionScore;
-        const feedbackClass = isCorrect ? 'correct' : 'incorrect';
+        
+        return {
+            pregunta: q.question,
+            respuestaUsuario: userAnswer ? userAnswer.selectedText : "No respondida",
+            respuestaCorrecta: q.answerOptions.find(opt => opt.isCorrect).text,
+            esCorrecta: isCorrect,
+            justificacionUsuario: userJustification.trim().length > 0 ? userJustification : "No proporcionada",
+            justificacionCorrecta: q.justification
+        };
+    });
+
+    const payload = {
+        nombre: userName,
+        apellido: userLastname,
+        cedula: userCedula,
+        email: userEmail,
+        puntuacion: totalScore,
+        puntuacionMaxima: totalPossibleScore,
+        respuestas: quizData.map((q, index) => {
+            const userAnswer = userAnswers[index];
+            const isCorrect = userAnswer ? userAnswer.isCorrect : false;
+            const userJustification = userAnswer && userAnswer.userJustification ? userAnswer.userJustification : "";
+            const scoreSelection = isCorrect ? selectionPoints : 0;
+            const scoreJustification = evaluateJustification(userJustification, q.keywords);
+            
+            return {
+                pregunta: q.question,
+                respuestaUsuario: userAnswer ? userAnswer.selectedText : "No respondida",
+                respuestaCorrecta: q.answerOptions.find(opt => opt.isCorrect).text,
+                esCorrecta: isCorrect,
+                justificacionUsuario: userJustification.trim().length > 0 ? userJustification : "No proporcionada",
+                justificacionCorrecta: q.justification,
+                puntuacionSeleccion: scoreSelection,
+                puntuacionJustificacion: scoreJustification,
+                puntuacionTotalPregunta: scoreSelection + scoreJustification
+            };
+        })
+    };
+    
+    fetch('/api/resultados', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(data => {
+        console.log('Resultado guardado en backend:', data);
+        showResults(payload.respuestas, totalScore, totalPossibleScore);
+    })
+    .catch(err => {
+        console.error('Error al guardar resultado:', err);
+        showResults(payload.respuestas, totalScore, totalPossibleScore);
+    });
+}
+
+function showResults(respuestas, totalScore, totalPossibleScore) {
+    const resultHTML = respuestas.map(resp => {
+        const feedbackClass = resp.esCorrecta ? 'correct' : 'incorrect';
         return `
             <div class="result-box">
-                <h3>Pregunta ${index + 1}: ${questionText}</h3>
-                <p>Puntuación por selección: ${scoreSelection}/${selectionPoints}</p>
-                <p>Puntuación por justificación: ${scoreJustification}/${justificationPoints}</p>
-                <p>Puntuación total por pregunta: ${currentQuestionScore}/${totalPointsPerQuestion}</p>
-                <p class="${feedbackClass}">Tu respuesta: ${userText}</p>
-                <p>Respuesta correcta: ${correctText}</p>
-                <p>Tu justificación: ${userJustification.trim().length > 0 ? userJustification : "No proporcionada"}</p>
-                <p>Justificación correcta: ${q.justification}</p>
+                <h3>Pregunta: ${resp.pregunta}</h3>
+                <p>Puntuación por selección: ${resp.puntuacionSeleccion}/${selectionPoints}</p>
+                <p>Puntuación por justificación: ${resp.puntuacionJustificacion}/${justificationPoints}</p>
+                <p>Puntuación total por pregunta: ${resp.puntuacionTotalPregunta}/${totalPointsPerQuestion}</p>
+                <p class="${feedbackClass}">Tu respuesta: ${resp.respuestaUsuario}</p>
+                <p>Respuesta correcta: ${resp.respuestaCorrecta}</p>
+                <p>Tu justificación: ${resp.justificacionUsuario}</p>
+                <p>Justificación correcta: ${resp.justificacionCorrecta}</p>
             </div>
         `;
     }).join('');
 
-    // Enviar resultados al backend y mostrar error si la cédula ya existe
-    fetch('/api/resultados', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            nombre: userName,
-            apellido: userLastname,
-            cedula: userCedula,
-            email: userEmail,
-            puntuacion: totalScore,
-            puntuacionMaxima: totalPossibleScore,
-            respuestas: quizData.map((q, index) => {
-                const userAnswer = userAnswers[index];
-                const isCorrect = userAnswer ? userAnswer.isCorrect : false;
-                const userJustification = userAnswer && userAnswer.userJustification ? userAnswer.userJustification : "";
-                const scoreSelection = isCorrect ? selectionPoints : 0;
-                const scoreJustification = evaluateJustification(userJustification, q.keywords);
-                const currentQuestionScore = scoreSelection + scoreJustification;
-                return {
-                    pregunta: q.question,
-                    respuestaUsuario: userAnswer ? userAnswer.selectedText : "No respondida",
-                    respuestaCorrecta: q.answerOptions.find(opt => opt.isCorrect).text,
-                    esCorrecta: isCorrect,
-                    justificacionUsuario: userJustification,
-                    justificacionCorrecta: q.justification,
-                    puntuacionSeleccion: scoreSelection,
-                    puntuacionJustificacion: scoreJustification,
-                    puntuacionTotalPregunta: currentQuestionScore
-                };
-            })
-        })
-    })
-    .then(res => res.json().then(data => ({ status: res.status, body: data })))
-    .then(({ status, body }) => {
-        if (status === 400) {
-            let errorDiv = document.getElementById('error-message');
-            if (!errorDiv) {
-                errorDiv = document.createElement('div');
-                errorDiv.id = 'error-message';
-                errorDiv.style.color = 'red';
-                errorDiv.style.fontWeight = 'bold';
-                errorDiv.style.margin = '20px 0';
-                document.querySelector('.quiz-container').prepend(errorDiv);
-            }
-            errorDiv.textContent = body.message;
-            document.getElementById('quiz-content').innerHTML = '';
-            document.getElementById('next-btn').style.display = 'none';
-            document.getElementById('prev-btn').style.display = 'none';
-            document.getElementById('submit-btn').style.display = 'none';
-            document.getElementById('timer-display').style.display = 'none';
-            return;
-        }
-        // Mostrar resultados normalmente
-        document.getElementById('quiz-content').innerHTML = `
-            <h2>Resultados</h2>
-            <p>Tu puntuación es: ${totalScore} de ${totalPossibleScore}</p>
-            ${resultHTML}
-            <button class="download-btn" onclick="downloadCsv()">Descargar Resultados</button>
-        `;
-        document.getElementById('next-btn').style.display = 'none';
-        document.getElementById('prev-btn').style.display = 'none';
-        document.getElementById('submit-btn').style.display = 'none';
-        document.getElementById('timer-display').style.display = 'none';
-    })
-    .catch(err => {
-        alert('Error al enviar los resultados. Intenta nuevamente.');
-    });
+    document.getElementById('quiz-content').innerHTML = `
+        <h2>Resultados</h2>
+        <p>Tu puntuación es: ${totalScore} de ${totalPossibleScore}</p>
+        ${resultHTML}
+        <button class="download-btn" onclick="downloadCsv()">Descargar Resultados</button>
+    `;
+    document.getElementById('next-btn').style.display = 'none';
+    document.getElementById('prev-btn').style.display = 'none';
+    document.getElementById('submit-btn').style.display = 'none';
+    document.getElementById('timer-display').style.display = 'none';
 }
 
 function generateCsv() {
