@@ -8,68 +8,99 @@ let quizDuration = 25 * 60;
 let timerInterval;
 let hasSubmitted = false;
 
-const quizData = [
+const allQuizData = [
     {
-        "question": "Según el documento, ¿cuál es el propósito principal de un analizador de espectro?",
+        "question": "¿Cuál es la función principal de la Transformada Rápida de Fourier (FFT) en los analizadores que la emplean?",
         "answerOptions": [
-            {"text": "Visualizar la función temporal de una señal para analizar sus componentes de frecuencia.", "isCorrect": false},
-            {"text": "Determinar la distorsión total de una onda sin identificar las armónicas individuales.", "isCorrect": false},
-            {"text": "Medir y representar las componentes de frecuencia y el nivel de potencia de una señal.", "isCorrect": true},
-            {"text": "Calcular la distorsión armónica total utilizando el puente de Wien.", "isCorrect": false},
-            {"text": "Medir la velocidad de barrido del oscilador local en tiempo real.", "isCorrect": false}
+            {"text": "Suprimir la frecuencia fundamental de la señal para medir la distorsión total.", "isCorrect": false},
+            {"text": "Transformar la señal del dominio temporal en un espectro de frecuencias, utilizada por los analizadores de Fourier.", "isCorrect": true},
+            {"text": "Rechazar señales fuera del rango de medición del instrumento antes del mezclador.", "isCorrect": false},
+            {"text": "Variar la frecuencia del oscilador local para visualizar el margen frecuencial de interés.", "isCorrect": false},
+            {"text": "Proporcionar la resolución del instrumento mediante el ajuste del ancho de banda del filtro de frecuencia intermedia.", "isCorrect": false}
         ],
-        "justification": "El documento define el analizador de espectro como un instrumento que representa las componentes espectrales de una señal de entrada y permite medir el nivel de potencia y la frecuencia de estas componentes.",
-        "keywords": ["representa", "componentes", "frecuencia", "potencia"]
+        "justification": "El analizador de Fourier transforma la señal en el tiempo en un espectro de frecuencias, y en algunos modelos ejecuta la transformada rápida de Fourier (FFT). Por este motivo, a los analizadores que usan esta técnica también se les conoce como analizadores de tiempo real. Su función es representar de forma rápida el espectro de frecuencias de una señal en la pantalla.",
+        "keywords": ["transformar", "dominio temporal", "espectro de frecuencias", "FFT"]
     },
     {
-        "question": "¿Qué componente en el diagrama de bloques del analizador de espectro superheterodino de barrido determina principalmente el ancho de banda de resolución (RBW) del instrumento?",
+        "question": "¿Cuál de las siguientes afirmaciones describe correctamente la función de un componente clave en el diagrama de bloques de un analizador de espectro superheterodino?",
         "answerOptions": [
-            {"text": "El atenuador de entrada, que limita el nivel de potencia de la señal.", "isCorrect": false},
-            {"text": "El filtro de video (VBW), que suaviza el ruido presente en las medidas.", "isCorrect": false},
-            {"text": "El mezclador, que desplaza las componentes de frecuencia a la frecuencia intermedia.", "isCorrect": false},
-            {"text": "El filtro IF, cuya función principal es proporcionar la resolución del instrumento.", "isCorrect": true},
-            {"text": "El amplificador logarítmico, que procesa la señal en modo logarítmico para medir un amplio rango de señales.", "isCorrect": false}
+            {"text": "El oscilador local se encarga de rectificar la señal para la medición de amplitud.", "isCorrect": false},
+            {"text": "El filtro pasabajo (filtro imagen) rechaza señales fuera del rango de medición del instrumento para evitar lecturas erróneas.", "isCorrect": true},
+            {"text": "El amplificador logarítmico ajusta el nivel de referencia y calibra la amplitud de la señal de entrada.", "isCorrect": false},
+            {"text": "El atenuador calibrado tiene como principal objetivo suavizar el ruido presente en las medidas.", "isCorrect": false},
+            {"text": "El filtro IF (Frecuencia Intermedia) se utiliza para limitar el nivel de potencia de la señal de entrada y optimizar el rango dinámico.", "isCorrect": false}
         ],
-        "justification": "El documento establece que el filtro IF tiene como función principal proporcionar la resolución del instrumento, la cual se basa en su ancho de banda, conocido como filtro de resolución (BWres).",
-        "keywords": ["filtro IF", "resolución", "ancho de banda"]
+        "justification": "El filtro pasabajo (filtro imagen) debe ser empleado para rechazar señales fuera del rango de medición del instrumento. Si no se incorporase, podrían entrar frecuencias indeseadas en el mezclador que serían trasladadas a la IF y provocarían una lectura y medida erróneas.",
+        "keywords": ["filtro pasabajo", "filtro imagen", "rechaza señales", "evitar lecturas erróneas"]
     },
     {
-        "question": "En el contexto de un analizador de espectro, ¿cuál es el efecto de la distorsión por intermodulación de tercer orden?",
+        "question": "¿Cuál es la principal ventaja de un analizador de espectro sobre un osciloscopio para el análisis de señales complejas?",
         "answerOptions": [
-            {"text": "Produce armónicos a frecuencias múltiples de la fundamental, a partir de un solo tono.", "isCorrect": false},
-            {"text": "Genera productos de distorsión a partir de la mezcla de dos tonos, que se añaden a la señal de salida.", "isCorrect": true},
-            {"text": "Reduce la sensibilidad del analizador al aumentar el ruido interno del instrumento.", "isCorrect": false},
-            {"text": "Provoca que el espectro de la señal se 'manche' debido a la inestabilidad de la frecuencia del oscilador local.", "isCorrect": false},
-            {"text": "Permite medir dos señales simultáneamente, incluso si tienen altos niveles de amplitud.", "isCorrect": false}
+            {"text": "Permite visualizar la función temporal de una señal con mayor detalle.", "isCorrect": false},
+            {"text": "Permite descomponer una señal en sus componentes armónicas y visualizarlas en el dominio frecuencial.", "isCorrect": true},
+            {"text": "Se utiliza exclusivamente para medir la distorsión armónica total sin identificar armónicos individuales.", "isCorrect": false},
+            {"text": "Procesa la señal en paralelo con un gran número de filtros pasabanda contiguos.", "isCorrect": false},
+            {"text": "Ofrece un rango de medición inferior a 140 dB.", "isCorrect": false}
         ],
-        "justification": "El documento define la intermodulación como el efecto que se produce cuando dos tonos entran en el sistema no lineal, generando armónicos cercanos a los tonos principales, que pueden ser medidos con el analizador.",
-        "keywords": ["dos tonos", "intermodulación", "armónicos"]
+        "justification": "Un osciloscopio permite visualizar la función temporal de una señal, pero no es posible conocer las componentes de frecuencia que la conforman. En cambio, el análisis de espectro permite descomponer una señal en sus componentes armónicas y representar la composición de frecuencias, conocida como espectro de frecuencias, en el dominio frecuencial.",
+        "keywords": ["descomponer", "componentes armónicas", "dominio frecuencial", "espectro de frecuencias"]
     },
     {
-        "question": "Según el texto, ¿qué describe el ruido de fase en un analizador de espectro?",
+        "question": "En el diagrama de bloques de un analizador de espectro superheterodino, ¿cuál es la función ideal del mezclador al combinar la señal de entrada (vRF(t)) con la señal del oscilador local (vOL(t))?",
         "answerOptions": [
-            {"text": "La relación entre la señal más grande y la más pequeña que se puede medir sin distorsión.", "isCorrect": false},
-            {"text": "El efecto de suavizar el ruido en las medidas utilizando el filtro de video.", "isCorrect": false},
-            {"text": "La cantidad de potencia de ruido medida por el detector, que es proporcional al ancho de banda.", "isCorrect": false},
-            {"text": "Un incremento en el ruido de fondo cerca de la señal, que puede ocultar otras señales más pequeñas.", "isCorrect": true},
-            {"text": "La relación entre el ancho de banda a -3dB y el ancho de banda a -60dB.", "isCorrect": false}
+            {"text": "Amplificar la señal de entrada para mejorar la sensibilidad.", "isCorrect": false},
+            {"text": "Filtrar las frecuencias no deseadas antes de la amplificación.", "isCorrect": false},
+            {"text": "Actuar como un multiplicador, generando señales cuyas frecuencias son la suma y la resta de las frecuencias de entrada y del oscilador local.", "isCorrect": true},
+            {"text": "Rectificar la señal resultante para la medición de amplitud.", "isCorrect": false},
+            {"text": "Calibrar la amplitud de la señal de entrada y ajustar el nivel de referencia.", "isCorrect": false}
         ],
-        "justification": "El documento describe el ruido de fase como un incremento en el ruido de fondo en las cercanías de la señal, lo que puede ocultar señales más pequeñas.",
-        "keywords": ["ruido de fase", "ruido de fondo", "ocultar señales"]
+        "justification": "El método heterodino consiste en mezclar cada armónica de la señal de entrada con una señal del oscilador local. El mezclador funciona idealmente como un multiplicador, lo que origina dos señales cuyas frecuencias serán la suma y resta de la frecuencia del oscilador local y la frecuencia de la señal de entrada.",
+        "keywords": ["mezclador", "multiplicador", "suma", "resta", "frecuencias"]
     },
     {
-        "question": "El documento menciona que la sensibilidad del analizador se puede mejorar. ¿Qué ajuste es el que más influye para lograr una mayor sensibilidad?",
+        "question": "¿Cuál es la función principal del Filtro IF (Frecuencia Intermedia) en un analizador de espectro, y cómo su ancho de banda afecta el rendimiento del instrumento?",
         "answerOptions": [
-            {"text": "Aumentar la atenuación del atenuador de RF para limitar la potencia de la señal de entrada.", "isCorrect": false},
-            {"text": "Disminuir el ancho de banda del filtro de video (VBW).", "isCorrect": false},
-            {"text": "Aumentar el ancho de banda de resolución (RBW) del filtro IF.", "isCorrect": false},
-            {"text": "Disminuir el ancho de banda de resolución (RBW) del filtro IF.", "isCorrect": true},
-            {"text": "Aumentar la ganancia del amplificador IF.", "isCorrect": false}
+            {"text": "Suprimir la frecuencia fundamental de la señal.", "isCorrect": false},
+            {"text": "Rechazar señales fuera del rango de medición del instrumento.", "isCorrect": false},
+            {"text": "Proporcionar la resolución del instrumento; un filtro más estrecho permite diferenciar mejor dos componentes espectrales cercanas.", "isCorrect": true},
+            {"text": "Calibrar la amplitud de la señal de entrada y ajustar el nivel de referencia.", "isCorrect": false},
+            {"text": "Suavizar el ruido presente en las medidas y distinguir señales con un nivel cercano al de ruido.", "isCorrect": false}
         ],
-        "justification": "El documento afirma que un menor ancho de banda de resolución (RBW) reduce la potencia de ruido a la salida y mejora la relación señal a ruido, lo que aumenta la sensibilidad del analizador.",
-        "keywords": ["disminuir", "ancho de banda", "resolución", "sensibilidad"]
+        "justification": "El Filtro IF tiene como su función principal proporcionar la resolución del instrumento, la cual se basa en el ancho de banda (BW) del filtro. Cuanto más estrecho es el filtro, mejor se podrá diferenciar en la pantalla dos componentes espectrales cercanas.",
+        "keywords": ["filtro IF", "resolución", "ancho de banda", "filtro más estrecho"]
+    },
+    {
+        "question": "¿Cuál es el propósito del filtro de vídeo (VBW) en un analizador de espectro, y cuál es su relación con el ancho de banda del filtro IF (RBW)?",
+        "answerOptions": [
+            {"text": "Define la resolución del instrumento y su frecuencia de corte debe ser mayor o igual al RBW.", "isCorrect": false},
+            {"text": "Permite un filtrado posterior para suavizar el ruido presente en las medidas, y su frecuencia de corte (VBW) debe ser menor que la del filtro IF para ser efectivo.", "isCorrect": true},
+            {"text": "Convierte las componentes espectrales a una frecuencia intermedia fija.", "isCorrect": false},
+            {"text": "Controla el barrido del oscilador local para visualizar el margen frecuencial de interés.", "isCorrect": false},
+            {"text": "Optimiza el rango dinámico de medición manteniendo la señal por debajo de un umbral en el mezclador.", "isCorrect": false}
+        ],
+        "justification": "El filtro de vídeo (VBW) se emplea para suavizar el ruido presente en las medidas. Para que sea efectivo, su frecuencia de corte (VBW) tiene que ser menor que la del filtro IF.",
+        "keywords": ["filtro de vídeo", "VBW", "suavizar el ruido", "menor que el filtro IF"]
+    },
+    {
+        "question": "¿Cuál es la aplicación principal que cumple un analizador de espectro?",
+        "answerOptions": [
+            {"text": "Visualizar exclusivamente la función temporal de una señal para analizar su forma de onda.", "isCorrect": false},
+            {"text": "Determinar la distorsión armónica total de una señal sin identificar armónicos individuales.", "isCorrect": false},
+            {"text": "Representar en una pantalla las componentes espectrales (frecuencia y amplitud) de una señal de entrada.", "isCorrect": true},
+            {"text": "Transformar señales del dominio temporal a un espectro de frecuencias utilizando la Transformada Rápida de Fourier (FFT) en el rango de DC a 100 KHz.", "isCorrect": false},
+            {"text": "Suavizar el ruido presente en las medidas a la salida del detector para una mejor visualización.", "isCorrect": false}
+        ],
+        "justification": "A diferencia de un osciloscopio que visualiza la función temporal, el analizador de espectro está diseñado para representar en una pantalla las componentes espectrales de una señal de entrada de forma rápida y sencilla. Esto implica mostrar las componentes armónicas que componen una señal compleja, graficando sus amplitudes en función de su frecuencia. La composición de frecuencias de la serie de Fourier es lo que se conoce como el espectro de frecuencias de la señal. Esta capacidad fundamental permite observar y medir el nivel de la potencia y la frecuencia de las componentes espectrales, lo cual a su vez habilita otras mediciones como la estabilidad, la distorsión, el tipo de modulación y el ruido.",
+        "keywords": ["representar", "componentes espectrales", "frecuencia", "amplitud", "pantalla"]
     }
 ];
+
+let quizData = [];
+
+function selectRandomQuestions(arr, num) {
+    const shuffled = [...arr].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, num);
+}
 
 function evaluateJustification(userJustification, keywords) {
     if (!userJustification || userJustification.trim().length === 0) {
@@ -124,10 +155,14 @@ function startQuiz() {
         if (!userLastname) document.getElementById('userLastnameInput').style.border = '2px solid #e74c3c';
         if (!userCedula) document.getElementById('userCedulaInput').style.border = '2px solid #e74c3c';
         if (!userEmail) document.getElementById('userEmailInput').style.border = '2px solid #e74c3c';
-        alert('Debes rellenar todos los campos correctamente antes de comenzar el examen.');
+        alert('Por favor, completa todos los datos de manera adecuada antes de comenzar el quiz.');
         return;
     }
-
+    
+    quizData = selectRandomQuestions(allQuizData, 5);
+    currentQuestionIndex = 0;
+    userAnswers = {};
+    
     document.getElementById('user-info-section').style.display = 'none';
     document.getElementById('quiz-section').style.display = 'block';
     document.getElementById('warning-message').style.display = 'block';
