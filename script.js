@@ -1,6 +1,6 @@
 let currentQuestionIndex = 0;
 let userAnswers = {};
-let userName, userLastname, userCedula, userEmail;
+let userName, userLastname, userCedula;
 const totalPointsPerQuestion = 4;
 const selectionPoints = totalPointsPerQuestion / 2;
 const justificationPoints = totalPointsPerQuestion / 2;
@@ -89,7 +89,7 @@ function startTimer() {
     timerInterval = setInterval(() => {
         const minutes = Math.floor(quizDuration / 60);
         const seconds = quizDuration % 60;
-        timerDisplay.textContent = `Tiempo restante: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        timerDisplay.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
 
         if (quizDuration <= 0) {
             clearInterval(timerInterval);
@@ -113,18 +113,16 @@ function startQuiz() {
     userName = document.getElementById('userNameInput').value.trim();
     userLastname = document.getElementById('userLastnameInput').value.trim();
     userCedula = document.getElementById('userCedulaInput').value.trim();
-    userEmail = document.getElementById('userEmailInput').value.trim(); // Nuevo campo
 
     document.querySelectorAll('input').forEach(input => {
         input.style.border = '2px solid #bdc3c7';
     });
 
-    if (!userName || !userLastname || !userCedula || !userEmail) { // Actualización de validación
+    if (!userName || !userLastname || !userCedula) {
         if (!userName) document.getElementById('userNameInput').style.border = '2px solid #e74c3c';
         if (!userLastname) document.getElementById('userLastnameInput').style.border = '2px solid #e74c3c';
         if (!userCedula) document.getElementById('userCedulaInput').style.border = '2px solid #e74c3c';
-        if (!userEmail) document.getElementById('userEmailInput').style.border = '2px solid #e74c3c';
-        alert('Por favor, completa todos los datos de manera adecuada antes de comenzar el quiz.');
+        alert('Por favor, completa todos tus datos antes de comenzar el quiz.');
         return;
     }
 
@@ -163,10 +161,6 @@ function showQuestion() {
         }
     });
 
-    const justificationTitle = document.createElement('h4');
-    justificationTitle.textContent = "Justifique su respuesta"; // Nuevo título
-    justificationTitle.style.marginTop = '20px';
-
     const justificationInput = document.createElement('textarea');
     justificationInput.classList.add('justification-area');
     justificationInput.placeholder = "Escribe aquí tu justificación (máximo 200 palabras)...";
@@ -184,7 +178,6 @@ function showQuestion() {
     }
 
     questionBox.appendChild(optionsContainer);
-    questionBox.appendChild(justificationTitle); // Añadir el nuevo título
     questionBox.appendChild(justificationInput);
     questionBox.appendChild(wordCountDisplay);
     quizContent.appendChild(questionBox);
@@ -281,7 +274,7 @@ function submitQuiz() {
             <div class="result-box">
                 <h3>Pregunta ${index + 1}: ${questionText}</h3>
                 <p>Puntuación por selección: ${scoreSelection}/${selectionPoints}</p>
-                <p>Puntuación por justificación: ${scoreJustification}/${justificationPoints}</p>
+                <p>Puntuación por justificación (automática): ${scoreJustification}/${justificationPoints}</p>
                 <p>Puntuación total por pregunta: ${currentQuestionScore}/${totalPointsPerQuestion}</p>
                 <p class="${feedbackClass}">Tu respuesta: ${userText}</p>
                 <p>Respuesta correcta: ${correctText}</p>
@@ -310,9 +303,9 @@ function generateCsv() {
     const sanitizeCsv = (text) => `"${(text + '').replace(/"/g, '""')}"`;
 
     // Encabezados e información del usuario
-    const infoHeaders = ["Nombre", "Apellido", "Cédula", "Email"];
+    const infoHeaders = ["Nombre", "Apellido", "Cédula"];
     csv += infoHeaders.map(header => sanitizeCsv(header)).join(';') + '\n';
-    csv += [sanitizeCsv(userName), sanitizeCsv(userLastname), sanitizeCsv(userCedula), sanitizeCsv(userEmail)].join(';') + '\n\n';
+    csv += [sanitizeCsv(userName), sanitizeCsv(userLastname), sanitizeCsv(userCedula)].join(';') + '\n\n';
 
     // Encabezados del quiz
     const quizHeaders = ["Pregunta", "Tu Respuesta", "Respuesta Correcta", "Puntuación Selección", "Puntuación Justificación", "Puntuación Total", "Tu Justificación", "Justificación Correcta"];
