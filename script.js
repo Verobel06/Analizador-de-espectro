@@ -1,6 +1,6 @@
 let currentQuestionIndex = 0;
 let userAnswers = {};
-let userName, userLastname, userCedula;
+let userName, userLastname, userCedula, userEmail;
 const totalPointsPerQuestion = 4;
 const selectionPoints = totalPointsPerQuestion / 2;
 const justificationPoints = totalPointsPerQuestion / 2;
@@ -73,15 +73,15 @@ const quizData = [
 
 function evaluateJustification(userJustification, keywords) {
     if (!userJustification || userJustification.trim().length === 0) {
-        return 0; // Si no hay justificación, no hay puntos
+        return 0;
     }
     const userText = userJustification.toLowerCase();
     for (const keyword of keywords) {
         if (userText.includes(keyword.toLowerCase())) {
-            return justificationPoints; // Si encuentra al menos una palabra clave, da los puntos
+            return justificationPoints;
         }
     }
-    return 0; // Si no encuentra ninguna palabra clave, da 0 puntos
+    return 0;
 }
 
 function startTimer() {
@@ -89,7 +89,7 @@ function startTimer() {
     timerInterval = setInterval(() => {
         const minutes = Math.floor(quizDuration / 60);
         const seconds = quizDuration % 60;
-        timerDisplay.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        timerDisplay.textContent = `Tiempo restante: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
 
         if (quizDuration <= 0) {
             clearInterval(timerInterval);
@@ -113,16 +113,18 @@ function startQuiz() {
     userName = document.getElementById('userNameInput').value.trim();
     userLastname = document.getElementById('userLastnameInput').value.trim();
     userCedula = document.getElementById('userCedulaInput').value.trim();
+    userEmail = document.getElementById('userEmailInput').value.trim();
 
     document.querySelectorAll('input').forEach(input => {
         input.style.border = '2px solid #bdc3c7';
     });
 
-    if (!userName || !userLastname || !userCedula) {
+    if (!userName || !userLastname || !userCedula || !userEmail) {
         if (!userName) document.getElementById('userNameInput').style.border = '2px solid #e74c3c';
         if (!userLastname) document.getElementById('userLastnameInput').style.border = '2px solid #e74c3c';
         if (!userCedula) document.getElementById('userCedulaInput').style.border = '2px solid #e74c3c';
-        alert('Por favor, completa todos tus datos antes de comenzar el quiz.');
+        if (!userEmail) document.getElementById('userEmailInput').style.border = '2px solid #e74c3c';
+        alert('Por favor, completa todos los datos de manera adecuada antes de comenzar el quiz.');
         return;
     }
 
@@ -161,23 +163,28 @@ function showQuestion() {
         }
     });
 
+    const justificationTitle = document.createElement('h4');
+    justificationTitle.textContent = "Justifique su respuesta";
+    justificationTitle.style.marginTop = '20px';
+
     const justificationInput = document.createElement('textarea');
     justificationInput.classList.add('justification-area');
-    justificationInput.placeholder = "Escribe aquí tu justificación (máximo 200 palabras)...";
+    justificationInput.placeholder = "Escribe aquí tu justificación (máximo 200 letras)...";
     justificationInput.id = `justification-${currentQuestionIndex}`;
     justificationInput.oninput = () => updateJustificationAndCount();
     
     const wordCountDisplay = document.createElement('div');
     wordCountDisplay.classList.add('word-count');
     wordCountDisplay.id = `word-count-${currentQuestionIndex}`;
-    wordCountDisplay.textContent = '0/200 palabras';
 
     if (userAnswers[currentQuestionIndex] && userAnswers[currentQuestionIndex].userJustification) {
         justificationInput.value = userAnswers[currentQuestionIndex].userJustification;
-        updateWordCount(justificationInput.value, wordCountDisplay);
     }
 
+    updateCharCount(justificationInput.value, wordCountDisplay);
+
     questionBox.appendChild(optionsContainer);
+    questionBox.appendChild(justificationTitle);
     questionBox.appendChild(justificationInput);
     questionBox.appendChild(wordCountDisplay);
     quizContent.appendChild(questionBox);
@@ -186,16 +193,15 @@ function showQuestion() {
 
 function updateJustificationAndCount() {
     const textarea = document.getElementById(`justification-${currentQuestionIndex}`);
-    const text = textarea.value.trim();
-    const wordCount = text ? text.split(/\s+/).length : 0;
+    const text = textarea.value;
+    const charCount = text.length;
     
     const wordCountDisplay = document.getElementById(`word-count-${currentQuestionIndex}`);
-    wordCountDisplay.textContent = `${wordCount}/200 palabras`;
+    wordCountDisplay.textContent = `${charCount}/200 letras`;
 
-    if (wordCount > 200) {
-        const words = text.split(/\s+/).slice(0, 200).join(' ');
-        textarea.value = words;
-        wordCountDisplay.textContent = '200/200 palabras (límite alcanzado)';
+    if (charCount > 200) {
+        textarea.value = text.substring(0, 200);
+        wordCountDisplay.textContent = '200/200 letras (límite alcanzado)';
     }
 
     if (userAnswers[currentQuestionIndex]) {
@@ -205,9 +211,9 @@ function updateJustificationAndCount() {
     }
 }
 
-function updateWordCount(text, displayElement) {
-    const wordCount = text.split(/\s+/).length;
-    displayElement.textContent = `${wordCount}/200 palabras`;
+function updateCharCount(text, displayElement) {
+    const charCount = text.length;
+    displayElement.textContent = `${charCount}/200 letras`;
 }
 
 function selectAnswer(selectedIndex) {
@@ -274,7 +280,7 @@ function submitQuiz() {
             <div class="result-box">
                 <h3>Pregunta ${index + 1}: ${questionText}</h3>
                 <p>Puntuación por selección: ${scoreSelection}/${selectionPoints}</p>
-                <p>Puntuación por justificación (automática): ${scoreJustification}/${justificationPoints}</p>
+                <p>Puntuación por justificación: ${scoreJustification}/${justificationPoints}</p>
                 <p>Puntuación total por pregunta: ${currentQuestionScore}/${totalPointsPerQuestion}</p>
                 <p class="${feedbackClass}">Tu respuesta: ${userText}</p>
                 <p>Respuesta correcta: ${correctText}</p>
@@ -296,18 +302,15 @@ function submitQuiz() {
     document.getElementById('timer-display').style.display = 'none';
 }
 
-// Nueva función para generar el contenido CSV
 function generateCsv() {
-    let csv = '\uFEFF'; // Agrega BOM para compatibilidad con caracteres especiales en Excel
+    let csv = '\uFEFF';
     
     const sanitizeCsv = (text) => `"${(text + '').replace(/"/g, '""')}"`;
 
-    // Encabezados e información del usuario
-    const infoHeaders = ["Nombre", "Apellido", "Cédula"];
+    const infoHeaders = ["Nombre", "Apellido", "Cédula", "Email"];
     csv += infoHeaders.map(header => sanitizeCsv(header)).join(';') + '\n';
-    csv += [sanitizeCsv(userName), sanitizeCsv(userLastname), sanitizeCsv(userCedula)].join(';') + '\n\n';
+    csv += [sanitizeCsv(userName), sanitizeCsv(userLastname), sanitizeCsv(userCedula), sanitizeCsv(userEmail)].join(';') + '\n\n';
 
-    // Encabezados del quiz
     const quizHeaders = ["Pregunta", "Tu Respuesta", "Respuesta Correcta", "Puntuación Selección", "Puntuación Justificación", "Puntuación Total", "Tu Justificación", "Justificación Correcta"];
     csv += quizHeaders.map(header => sanitizeCsv(header)).join(';') + '\n';
     
@@ -338,7 +341,6 @@ function generateCsv() {
     return csv;
 }
 
-// Nueva función para descargar el archivo
 function downloadCsv() {
     const csvContent = generateCsv();
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -353,7 +355,6 @@ function downloadCsv() {
         link.click();
         document.body.removeChild(link);
     } else {
-        // Fallback para navegadores que no admiten el atributo download
         alert("Tu navegador no admite la descarga automática. Por favor, copia el contenido que se mostrará a continuación y pégalo en un archivo de texto para guardarlo como .csv");
         window.open('data:text/csv;charset=utf-8,' + escape(csvContent));
     }
