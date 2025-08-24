@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiz Analizador de Espectro</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css">  
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
@@ -27,7 +27,7 @@
         <input type="text" id="userNameInput" placeholder="Nombre" required>
         <input type="text" id="userLastnameInput" placeholder="Apellido" required>
         <input type="text" id="userCedulaInput" placeholder="Cédula" required>
-        <button id="start-btn" class="start-btn" onclick="startQuiz()">Comenzar</button>
+        <input type="email" id="userEmailInput" placeholder="Correo electrónico" required> <button id="start-btn" class="start-btn" onclick="startQuiz()">Comenzar</button>
     </div>
 
     <div id="quiz-section" class="quiz-section">
@@ -40,11 +40,11 @@
         <div class="navigation-buttons">
             <button id="prev-btn" onclick="showPrevQuestion()" style="display: none;">Anterior</button>
             <button id="next-btn" onclick="showNextQuestion()">Siguiente</button>
-            <button id="submit-btn" onclick="submitQuiz()" style="display: none;">Enviar</button>
+            <button id="submit-btn" onclick="submitQuiz()" style="display: none;">Enviar Quiz</button>
         </div>
     </div>
 </div>
 
-<script src="script.js"></script>    
+<script src="script.js"></script>
 </body>
 </html>
