@@ -125,6 +125,20 @@
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         }
 
+        /* Recuadro para cada resultado de pregunta */
+        .result-box {
+            background-color: #fffbe6;
+            border: 2px solid #ffd700;
+            border-radius: 12px;
+            padding: 22px 18px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 12px rgba(255, 215, 0, 0.08);
+        }
+        .result-box h3 {
+            margin-top: 0;
+            color: #b8860b;
+        }
+
         .question-box h2 {
             font-size: 1.5em;
             color: #2c3e50;
