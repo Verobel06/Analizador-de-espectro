@@ -23,6 +23,11 @@ app.listen(PORT, () => {
     console.log(`Servidor escuchando en el puerto ${PORT}`);
 });
 
+// Servir el frontend solo para rutas que no sean /api/*
+app.get(/^((?!\/api\/).)*$/, (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
 // Endpoint para descargar resultados en formato CSV
 app.get('/api/resultados/excel', (req, res) => {
     const filePath = path.join(__dirname, 'resultados.json');
