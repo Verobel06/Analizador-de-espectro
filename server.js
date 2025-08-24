@@ -14,11 +14,7 @@ app.post('/api/resultados', (req, res) => {
     if (fs.existsSync(filePath)) {
         resultados = JSON.parse(fs.readFileSync(filePath));
     }
-    // Verificar si la cédula ya existe
-    const cedulaExiste = resultados.some(r => r.cedula === resultado.cedula);
-    if (cedulaExiste) {
-        return res.status(400).json({ message: 'Ya existe un registro con esa cédula. Solo se puede responder el parcial una vez.' });
-    }
+    // Se elimina la validación para permitir múltiples envíos con la misma cédula
     resultados.push(resultado);
     fs.writeFileSync(filePath, JSON.stringify(resultados, null, 2));
     res.status(200).json({ message: 'Resultado guardado correctamente.' });
