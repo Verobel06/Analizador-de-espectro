@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Analizador de Espectro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* Estilos generales y de tipografía */
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #e8eef2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* Contenedor principal del quiz */
+        .quiz-container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 850px;
+            text-align: center;
+        }
+
+        /* Estilo para los títulos */
+        .header h1 {
+            color: #2c3e50;
+            font-weight: 700;
+            font-size: 2.2em;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+            display: inline-block;
+        }
+
+        /* Sección de información del usuario */
+        .user-info-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding: 20px;
+            align-items: center;
+        }
+
+        .header-logos {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .header-logos img {
+            max-width: 100px;
+            height: auto;
+        }
+
+        .header-text {
+            text-align: center;
+            flex-grow: 1;
+        }
+
+        .header-text h3 {
+            margin: 5px 0;
+            color: #34495e;
+            font-size: 1em;
+        }
+
+        .user-info-section input {
+            padding: 15px;
+            border: 2px solid #bdc3c7;
+            border-radius: 8px;
+            font-size: 1em;
+            width: 100%;
+            box-sizing: border-box;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .user-info-section input:focus {
+            border-color: #3498db;
+            outline: none;
+            box-shadow: 0 0 8px rgba(52, 152, 219, 0.3);
+        }
+
+        /* Estilo para el botón de inicio */
+        .start-btn {
+            background-color: #FF69B4;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            margin-top: 20px;
+        }
+
+        .start-btn:hover {
+            background-color: #FF1493;
+            transform: translateY(-2px);
+        }
+
+        /* Sección del quiz */
+        .quiz-section {
+            display: none;
+            text-align: left;
+        }
+
+        /* Estilo para el temporizador */
+        .timer-container {
+            text-align: right;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #e74c3c;
+            margin-bottom: 20px;
+        }
+
+        .question-box {
+            background-color: #f7f9fb;
+            border: 1px solid #e0e6e9;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .question-box h2 {
+            font-size: 1.5em;
+            color: #2c3e50;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        /* Estilo para las opciones de respuesta */
+        .answer-option {
+            background-color: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.2s;
+        }
+
+        .answer-option:hover {
+            background-color: #dbe4e8;
+            transform: scale(1.01);
+        }
+
+        /* Estilos de botones de navegación */
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 25px;
+        }
+
+        .navigation-buttons button {
+            background-color: #3498db;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .navigation-buttons button:hover {
+            background-color: #2980b9;
+        }
+
+        #prev-btn {
+            background-color: #95a5a6;
+        }
+
+        #prev-btn:hover {
+            background-color: #7f8c8d;
+        }
+
+        /* Estilos para el estado de las respuestas */
+        .selected {
+            background-color: #3498db;
+            color: white;
+        }
+        .correct {
+            background-color: #2ecc71;
+            color: white;
+        }
+        .incorrect {
+            background-color: #e74c3c;
+            color: white;
+        }
+        .justification-area {
+            width: 100%;
+            height: 100px;
+            margin-top: 15px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+            resize: vertical;
+        }
+        .word-count {
+            text-align: right;
+            font-size: 0.9em;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+        .warning-message {
+            background-color: #f7e09e;
+            color: #8a6d3b;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            display: none; /* Se mostrará con JavaScript */
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div id="user-info-section" class="user-info-section">
+        <div class="header-logos">
+            <img src="logo_universidad.png" alt="Logo Universidad">
+            <div class="header-text">
+                <h3>UNIVERSIDAD DE CARABOBO</h3>
+                <h3>FACULTAD DE INGENIERÍA</h3>
+                <h3>DEPARTAMENTO DE ELECTRÓNICA</h3>
+                <h3>INSTRUMENTACIÓN ELECTRÓNICA</h3>
+            </div>
+            <img src="logo_facultad.png" alt="Logo Facultad">
+        </div>
+        <div class="header">
+            <h1>Quiz Analizador de Espectro</h1>
+        </div>
+        <input type="text" id="userNameInput" placeholder="Nombre" required>
+        <input type="text" id="userLastnameInput" placeholder="Apellido" required>
+        <input type="text" id="userCedulaInput" placeholder="Cédula" required>
+        <button id="start-btn" class="start-btn" onclick="startQuiz()">Comenzar</button>
+    </div>
+
+    <div id="quiz-section" class="quiz-section">
+        <div id="timer-display" class="timer-container">25:00</div>
+        <div id="warning-message" class="warning-message">
+            ⚠️ **ATENCIÓN:** Si cambias de pestaña o sales de esta página, el examen se enviará automáticamente.
+        </div>
+        <div id="quiz-content"></div>
+
+        <div class="navigation-buttons">
+            <button id="prev-btn" onclick="showPrevQuestion()" style="display: none;">Anterior</button>
+            <button id="next-btn" onclick="showNextQuestion()">Siguiente</button>
+            <button id="submit-btn" onclick="submitQuiz()" style="display: none;">Enviar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentQuestionIndex = 0;
+    let userAnswers = {};
+    const totalPointsPerQuestion = 4;
+    const selectionPoints = totalPointsPerQuestion / 2;
+    const justificationPoints = totalPointsPerQuestion / 2;
+    let quizDuration = 25 * 60;
+    let timerInterval;
+    let hasSubmitted = false;
+
+    const quizData = [
+        {
+            "question": "Según el documento, ¿cuál es el propósito principal de un analizador de espectro?",
+            "answerOptions": [
+                {"text": "Visualizar la función temporal de una señal para analizar sus componentes de frecuencia.", "isCorrect": false},
+                {"text": "Determinar la distorsión total de una onda sin identificar las armónicas individuales.", "isCorrect": false},
+                {"text": "Medir y representar las componentes de frecuencia y el nivel de potencia de una señal.", "isCorrect": true},
+                {"text": "Calcular la distorsión armónica total utilizando el puente de Wien.", "isCorrect": false},
+                {"text": "Medir la velocidad de barrido del oscilador local en tiempo real.", "isCorrect": false}
+            ],
+            "justification": "El documento define el analizador de espectro como un instrumento que representa las componentes espectrales de una señal de entrada y permite medir el nivel de potencia y la frecuencia de estas componentes."
+        },
+        {
+            "question": "¿Qué componente en el diagrama de bloques del analizador de espectro superheterodino de barrido determina principalmente el ancho de banda de resolución (RBW) del instrumento?",
+            "answerOptions": [
+                {"text": "El atenuador de entrada, que limita el nivel de potencia de la señal.", "isCorrect": false},
+                {"text": "El filtro de video (VBW), que suaviza el ruido presente en las medidas.", "isCorrect": false},
+                {"text": "El mezclador, que desplaza las componentes de frecuencia a la frecuencia intermedia.", "isCorrect": false},
+                {"text": "El filtro IF, cuya función principal es proporcionar la resolución del instrumento.", "isCorrect": true},
+                {"text": "El amplificador logarítmico, que procesa la señal en modo logarítmico para medir un amplio rango de señales.", "isCorrect": false}
+            ],
+            "justification": "El documento establece que el filtro IF tiene como función principal proporcionar la resolución del instrumento, la cual se basa en su ancho de banda, conocido como filtro de resolución (BWres)."
+        },
+        {
+            "question": "En el contexto de un analizador de espectro, ¿cuál es el efecto de la distorsión por intermodulación de tercer orden?",
+            "answerOptions": [
+                {"text": "Produce armónicos a frecuencias múltiples de la fundamental, a partir de un solo tono.", "isCorrect": false},
+                {"text": "Genera productos de distorsión a partir de la mezcla de dos tonos, que se añaden a la señal de salida.", "isCorrect": true},
+                {"text": "Reduce la sensibilidad del analizador al aumentar el ruido interno del instrumento.", "isCorrect": false},
+                {"text": "Provoca que el espectro de la señal se 'manche' debido a la inestabilidad de la frecuencia del oscilador local.", "isCorrect": false},
+                {"text": "Permite medir dos señales simultáneamente, incluso si tienen altos niveles de amplitud.", "isCorrect": false}
+            ],
+            "justification": "El documento define la intermodulación como el efecto que se produce cuando dos tonos entran en el sistema no lineal, generando armónicos cercanos a los tonos principales, que pueden ser medidos con el analizador."
+        },
+        {
+            "question": "Según el texto, ¿qué describe el ruido de fase en un analizador de espectro?",
+            "answerOptions": [
+                {"text": "La relación entre la señal más grande y la más pequeña que se puede medir sin distorsión.", "isCorrect": false},
+                {"text": "El efecto de suavizar el ruido en las medidas utilizando el filtro de video.", "isCorrect": false},
+                {"text": "La cantidad de potencia de ruido medida por el detector, que es proporcional al ancho de banda.", "isCorrect": false},
+                {"text": "Un incremento en el ruido de fondo cerca de la señal, que puede ocultar otras señales más pequeñas.", "isCorrect": true},
+                {"text": "La relación entre el ancho de banda a -3dB y el ancho de banda a -60dB.", "isCorrect": false}
+            ],
+            "justification": "El documento describe el ruido de fase como un incremento en el ruido de fondo en las cercanías de la señal, lo que puede ocultar señales más pequeñas."
+        },
+        {
+            "question": "El documento menciona que la sensibilidad del analizador se puede mejorar. ¿Qué ajuste es el que más influye para lograr una mayor sensibilidad?",
+            "answerOptions": [
+                {"text": "Aumentar la atenuación del atenuador de RF para limitar la potencia de la señal de entrada.", "isCorrect": false},
+                {"text": "Disminuir el ancho de banda del filtro de video (VBW).", "isCorrect": false},
+                {"text": "Aumentar el ancho de banda de resolución (RBW) del filtro IF.", "isCorrect": false},
+                {"text": "Disminuir el ancho de banda de resolución (RBW) del filtro IF.", "isCorrect": true},
+                {"text": "Aumentar la ganancia del amplificador IF.", "isCorrect": false}
+            ],
+            "justification": "El documento afirma que un menor ancho de banda de resolución (RBW) reduce la potencia de ruido a la salida y mejora la relación señal a ruido, lo que aumenta la sensibilidad del analizador."
+        }
+    ];
+
+    function startTimer() {
+        const timerDisplay = document.getElementById('timer-display');
+        timerInterval = setInterval(() => {
+            const minutes = Math.floor(quizDuration / 60);
+            const seconds = quizDuration % 60;
+            timerDisplay.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+
+            if (quizDuration <= 0) {
+                clearInterval(timerInterval);
+                if (!hasSubmitted) {
+                    alert("¡Se acabó el tiempo! El quiz se enviará automáticamente.");
+                    submitQuiz();
+                }
+            }
+            quizDuration--;
+        }, 1000);
+    }
+
+    function handleVisibilityChange() {
+        if (document.visibilityState === 'hidden' && !hasSubmitted) {
+            alert("Has cambiado de pestaña. El examen se ha enviado automáticamente.");
+            submitQuiz();
+        }
+    }
+
+    function startQuiz() {
+        const userName = document.getElementById('userNameInput').value.trim();
+        const userLastname = document.getElementById('userLastnameInput').value.trim();
+        const userCedula = document.getElementById('userCedulaInput').value.trim();
+
+        document.querySelectorAll('input').forEach(input => {
+            input.style.border = '2px solid #bdc3c7';
+        });
+
+        if (!userName || !userLastname || !userCedula) {
+            if (!userName) document.getElementById('userNameInput').style.border = '2px solid #e74c3c';
+            if (!userLastname) document.getElementById('userLastnameInput').style.border = '2px solid #e74c3c';
+            if (!userCedula) document.getElementById('userCedulaInput').style.border = '2px solid #e74c3c';
+            alert('Por favor, completa todos tus datos antes de comenzar el quiz.');
+            return;
+        }
+
+        document.getElementById('user-info-section').style.display = 'none';
+        document.getElementById('quiz-section').style.display = 'block';
+        document.getElementById('warning-message').style.display = 'block';
+
+        startTimer();
+        showQuestion();
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+    }
+
+    function showQuestion() {
+        const quizContent = document.getElementById('quiz-content');
+        quizContent.innerHTML = '';
+        const questionData = quizData[currentQuestionIndex];
+        const questionBox = document.createElement('div');
+        questionBox.classList.add('question-box');
+        
+        questionBox.innerHTML = `
+            <h2>Pregunta ${currentQuestionIndex + 1}:</h2>
+            <p>${questionData.question}</p>
+        `;
+
+        const optionsContainer = document.createElement('div');
+        questionData.answerOptions.forEach((option, index) => {
+            const optionElement = document.createElement('div');
+            optionElement.classList.add('answer-option');
+            optionElement.textContent = option.text;
+            optionElement.onclick = () => selectAnswer(index);
+            optionsContainer.appendChild(optionElement);
+
+            if (userAnswers[currentQuestionIndex] && userAnswers[currentQuestionIndex].selectedIndex === index) {
+                optionElement.classList.add('selected');
+            }
+        });
+
+        const justificationInput = document.createElement('textarea');
+        justificationInput.classList.add('justification-area');
+        justificationInput.placeholder = "Escribe aquí tu justificación (máximo 200 palabras)...";
+        justificationInput.id = `justification-${currentQuestionIndex}`;
+        justificationInput.oninput = () => updateJustificationAndCount();
+        
+        const wordCountDisplay = document.createElement('div');
+        wordCountDisplay.classList.add('word-count');
+        wordCountDisplay.id = `word-count-${currentQuestionIndex}`;
+        wordCountDisplay.textContent = '0/200 palabras';
+
+        if (userAnswers[currentQuestionIndex] && userAnswers[currentQuestionIndex].userJustification) {
+            justificationInput.value = userAnswers[currentQuestionIndex].userJustification;
+            updateWordCount(justificationInput.value, wordCountDisplay);
+        }
+
+        questionBox.appendChild(optionsContainer);
+        questionBox.appendChild(justificationInput);
+        questionBox.appendChild(wordCountDisplay);
+        quizContent.appendChild(questionBox);
+        updateNavigationButtons();
+    }
+
+    function updateJustificationAndCount() {
+        const textarea = document.getElementById(`justification-${currentQuestionIndex}`);
+        const text = textarea.value.trim();
+        const wordCount = text ? text.split(/\s+/).length : 0;
+        
+        const wordCountDisplay = document.getElementById(`word-count-${currentQuestionIndex}`);
+        wordCountDisplay.textContent = `${wordCount}/200 palabras`;
+
+        if (wordCount > 200) {
+            const words = text.split(/\s+/).slice(0, 200).join(' ');
+            textarea.value = words;
+            wordCountDisplay.textContent = '200/200 palabras (límite alcanzado)';
+        }
+
+        if (userAnswers[currentQuestionIndex]) {
+            userAnswers[currentQuestionIndex].userJustification = textarea.value;
+        } else {
+            userAnswers[currentQuestionIndex] = { userJustification: textarea.value };
+        }
+    }
+    
+    function updateWordCount(text, displayElement) {
+        const wordCount = text.split(/\s+/).length;
+        displayElement.textContent = `${wordCount}/200 palabras`;
+    }
+
+    function selectAnswer(selectedIndex) {
+        const questionData = quizData[currentQuestionIndex];
+        const textarea = document.getElementById(`justification-${currentQuestionIndex}`);
+        
+        userAnswers[currentQuestionIndex] = {
+            selectedIndex,
+            isCorrect: questionData.answerOptions[selectedIndex].isCorrect,
+            selectedText: questionData.answerOptions[selectedIndex].text,
+            userJustification: textarea ? textarea.value : ''
+        };
+        showQuestion();
+    }
+
+    function updateNavigationButtons() {
+        document.getElementById('prev-btn').style.display = currentQuestionIndex > 0 ? 'inline-block' : 'none';
+        document.getElementById('next-btn').style.display = currentQuestionIndex < quizData.length - 1 ? 'inline-block' : 'none';
+        document.getElementById('submit-btn').style.display = currentQuestionIndex === quizData.length - 1 ? 'inline-block' : 'none';
+    }
+
+    function showNextQuestion() {
+        if (currentQuestionIndex < quizData.length - 1) {
+            currentQuestionIndex++;
+            showQuestion();
+        }
+    }
+
+    function showPrevQuestion() {
+        if (currentQuestionIndex > 0) {
+            currentQuestionIndex--;
+            showQuestion();
+        }
+    }
+
+    function submitQuiz() {
+        if (hasSubmitted) return;
+        hasSubmitted = true;
+        
+        clearInterval(timerInterval);
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+        
+        let totalScore = 0;
+        const totalPossibleScore = quizData.length * selectionPoints;
+
+        const resultHTML = quizData.map((q, index) => {
+            const userAnswer = userAnswers[index];
+            const isCorrect = userAnswer ? userAnswer.isCorrect : false;
+            const questionText = q.question;
+            const correctText = q.answerOptions.find(opt => opt.isCorrect).text;
+            const userText = userAnswer ? userAnswer.selectedText : "No respondida";
+            const userJustification = userAnswer && userAnswer.userJustification ? userAnswer.userJustification : "No proporcionada";
+            
+            let questionScore = 0;
+            if (isCorrect) {
+                questionScore = selectionPoints;
+                totalScore += questionScore;
+            }
+
+            const feedbackClass = isCorrect ? 'correct' : 'incorrect';
+
+            return `
+                <div class="result-box">
+                    <h3>Pregunta ${index + 1}: ${questionText}</h3>
+                    <p>Puntuación por selección: ${isCorrect ? selectionPoints : 0}/${selectionPoints}</p>
+                    <p>Puntuación por justificación: **A evaluar manualmente** (0-${justificationPoints} puntos)</p>
+                    <p class="${feedbackClass}">Tu respuesta: ${userText}</p>
+                    <p>Respuesta correcta: ${correctText}</p>
+                    <p>Tu justificación: ${userJustification}</p>
+                    <p>Justificación correcta: ${q.justification}</p>
+                </div>
+            `;
+        }).join('');
+
+        document.getElementById('quiz-content').innerHTML = `
+            <h2>Resultados</h2>
+            <p>Tu puntuación es: ${totalScore} de ${totalPossibleScore} (Puntuación final pendiente de la evaluación de la justificación)</p>
+            ${resultHTML}
+        `;
+        document.getElementById('next-btn').style.display = 'none';
+        document.getElementById('prev-btn').style.display = 'none';
+        document.getElementById('submit-btn').style.display = 'none';
+        document.getElementById('timer-display').style.display = 'none';
+    }
+</script>
+
+</body>
+</html>
