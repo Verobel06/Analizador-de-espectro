@@ -18,7 +18,8 @@ const quizData = [
             {"text": "Calcular la distorsión armónica total utilizando el puente de Wien.", "isCorrect": false},
             {"text": "Medir la velocidad de barrido del oscilador local en tiempo real.", "isCorrect": false}
         ],
-        "justification": "El documento define el analizador de espectro como un instrumento que representa las componentes espectrales de una señal de entrada y permite medir el nivel de potencia y la frecuencia de estas componentes."
+        "justification": "El documento define el analizador de espectro como un instrumento que representa las componentes espectrales de una señal de entrada y permite medir el nivel de potencia y la frecuencia de estas componentes.",
+        "keywords": ["representa", "componentes", "frecuencia", "potencia"]
     },
     {
         "question": "¿Qué componente en el diagrama de bloques del analizador de espectro superheterodino de barrido determina principalmente el ancho de banda de resolución (RBW) del instrumento?",
@@ -29,7 +30,8 @@ const quizData = [
             {"text": "El filtro IF, cuya función principal es proporcionar la resolución del instrumento.", "isCorrect": true},
             {"text": "El amplificador logarítmico, que procesa la señal en modo logarítmico para medir un amplio rango de señales.", "isCorrect": false}
         ],
-        "justification": "El documento establece que el filtro IF tiene como función principal proporcionar la resolución del instrumento, la cual se basa en su ancho de banda, conocido como filtro de resolución (BWres)."
+        "justification": "El documento establece que el filtro IF tiene como función principal proporcionar la resolución del instrumento, la cual se basa en su ancho de banda, conocido como filtro de resolución (BWres).",
+        "keywords": ["filtro IF", "resolución", "ancho de banda"]
     },
     {
         "question": "En el contexto de un analizador de espectro, ¿cuál es el efecto de la distorsión por intermodulación de tercer orden?",
@@ -40,7 +42,8 @@ const quizData = [
             {"text": "Provoca que el espectro de la señal se 'manche' debido a la inestabilidad de la frecuencia del oscilador local.", "isCorrect": false},
             {"text": "Permite medir dos señales simultáneamente, incluso si tienen altos niveles de amplitud.", "isCorrect": false}
         ],
-        "justification": "El documento define la intermodulación como el efecto que se produce cuando dos tonos entran en el sistema no lineal, generando armónicos cercanos a los tonos principales, que pueden ser medidos con el analizador."
+        "justification": "El documento define la intermodulación como el efecto que se produce cuando dos tonos entran en el sistema no lineal, generando armónicos cercanos a los tonos principales, que pueden ser medidos con el analizador.",
+        "keywords": ["dos tonos", "intermodulación", "armónicos"]
     },
     {
         "question": "Según el texto, ¿qué describe el ruido de fase en un analizador de espectro?",
@@ -51,7 +54,8 @@ const quizData = [
             {"text": "Un incremento en el ruido de fondo cerca de la señal, que puede ocultar otras señales más pequeñas.", "isCorrect": true},
             {"text": "La relación entre el ancho de banda a -3dB y el ancho de banda a -60dB.", "isCorrect": false}
         ],
-        "justification": "El documento describe el ruido de fase como un incremento en el ruido de fondo en las cercanías de la señal, lo que puede ocultar señales más pequeñas."
+        "justification": "El documento describe el ruido de fase como un incremento en el ruido de fondo en las cercanías de la señal, lo que puede ocultar señales más pequeñas.",
+        "keywords": ["ruido de fase", "ruido de fondo", "ocultar señales"]
     },
     {
         "question": "El documento menciona que la sensibilidad del analizador se puede mejorar. ¿Qué ajuste es el que más influye para lograr una mayor sensibilidad?",
@@ -62,9 +66,23 @@ const quizData = [
             {"text": "Disminuir el ancho de banda de resolución (RBW) del filtro IF.", "isCorrect": true},
             {"text": "Aumentar la ganancia del amplificador IF.", "isCorrect": false}
         ],
-        "justification": "El documento afirma que un menor ancho de banda de resolución (RBW) reduce la potencia de ruido a la salida y mejora la relación señal a ruido, lo que aumenta la sensibilidad del analizador."
+        "justification": "El documento afirma que un menor ancho de banda de resolución (RBW) reduce la potencia de ruido a la salida y mejora la relación señal a ruido, lo que aumenta la sensibilidad del analizador.",
+        "keywords": ["disminuir", "ancho de banda", "resolución", "sensibilidad"]
     }
 ];
+
+function evaluateJustification(userJustification, keywords) {
+    if (!userJustification || userJustification.trim().length === 0) {
+        return 0; // Si no hay justificación, no hay puntos
+    }
+    const userText = userJustification.toLowerCase();
+    for (const keyword of keywords) {
+        if (userText.includes(keyword.toLowerCase())) {
+            return justificationPoints; // Si encuentra al menos una palabra clave, da los puntos
+        }
+    }
+    return 0; // Si no encuentra ninguna palabra clave, da 0 puntos
+}
 
 function startTimer() {
     const timerDisplay = document.getElementById('timer-display');
@@ -233,35 +251,34 @@ function submitQuiz() {
     document.removeEventListener('visibilitychange', handleVisibilityChange);
     
     let totalScore = 0;
-    // Total de 20 puntos por selección, 20 por justificación
     const totalPossibleScore = quizData.length * totalPointsPerQuestion;
 
     const resultHTML = quizData.map((q, index) => {
         const userAnswer = userAnswers[index];
         const isCorrect = userAnswer ? userAnswer.isCorrect : false;
-        const hasJustification = userAnswer && userAnswer.userJustification && userAnswer.userJustification.trim().length > 0;
+        const userJustification = userAnswer && userAnswer.userJustification ? userAnswer.userJustification : "";
+
+        const scoreSelection = isCorrect ? selectionPoints : 0;
+        const scoreJustification = evaluateJustification(userJustification, q.keywords);
+
         const questionText = q.question;
         const correctText = q.answerOptions.find(opt => opt.isCorrect).text;
         const userText = userAnswer ? userAnswer.selectedText : "No respondida";
-        const userJustification = userAnswer && userAnswer.userJustification ? userAnswer.userJustification : "No proporcionada";
         
-        let questionScore = 0;
-        // Solo da puntos por selección si la respuesta es correcta Y hay una justificación
-        if (isCorrect && hasJustification) {
-            questionScore = selectionPoints;
-            totalScore += questionScore;
-        }
+        const currentQuestionScore = scoreSelection + scoreJustification;
+        totalScore += currentQuestionScore;
 
         const feedbackClass = isCorrect ? 'correct' : 'incorrect';
 
         return `
             <div class="result-box">
                 <h3>Pregunta ${index + 1}: ${questionText}</h3>
-                <p>Puntuación por selección: ${isCorrect && hasJustification ? selectionPoints : 0}/${selectionPoints}</p>
-                <p>Puntuación por justificación: **A evaluar manualmente** (0-${justificationPoints} puntos)</p>
+                <p>Puntuación por selección: ${scoreSelection}/${selectionPoints}</p>
+                <p>Puntuación por justificación (automática): ${scoreJustification}/${justificationPoints}</p>
+                <p>Puntuación total por pregunta: ${currentQuestionScore}/${totalPointsPerQuestion}</p>
                 <p class="${feedbackClass}">Tu respuesta: ${userText}</p>
                 <p>Respuesta correcta: ${correctText}</p>
-                <p>Tu justificación: ${userJustification}</p>
+                <p>Tu justificación: ${userJustification.trim().length > 0 ? userJustification : "No proporcionada"}</p>
                 <p>Justificación correcta: ${q.justification}</p>
             </div>
         `;
@@ -269,7 +286,7 @@ function submitQuiz() {
 
     document.getElementById('quiz-content').innerHTML = `
         <h2>Resultados</h2>
-        <p>Tu puntuación es: ${totalScore} de ${totalPossibleScore} (Puntuación final pendiente de la evaluación de la justificación)</p>
+        <p>Tu puntuación es: ${totalScore} de ${totalPossibleScore}</p>
         ${resultHTML}
         <button class="download-btn" onclick="downloadCsv()">Descargar Resultados</button>
     `;
@@ -291,22 +308,27 @@ function generateCsv() {
     csv += [sanitizeCsv(userName), sanitizeCsv(userLastname), sanitizeCsv(userCedula)].join(';') + '\n\n';
 
     // Encabezados del quiz
-    const quizHeaders = ["Pregunta", "Tu Respuesta", "Respuesta Correcta", "Puntuación", "Tu Justificación"];
+    const quizHeaders = ["Pregunta", "Tu Respuesta", "Respuesta Correcta", "Puntuación Selección", "Puntuación Justificación", "Puntuación Total", "Tu Justificación", "Justificación Correcta"];
     csv += quizHeaders.map(header => sanitizeCsv(header)).join(';') + '\n';
     
     quizData.forEach((q, index) => {
         const userAnswer = userAnswers[index];
-        const isCorrect = userAnswer && userAnswer.isCorrect;
-        const hasJustification = userAnswer && userAnswer.userJustification && userAnswer.userJustification.trim().length > 0;
-        // La puntuación solo se da si la respuesta es correcta y hay justificación
-        const questionScore = (isCorrect && hasJustification) ? selectionPoints : 0;
+        const isCorrect = userAnswer ? userAnswer.isCorrect : false;
+        const userJustification = userAnswer && userAnswer.userJustification ? userAnswer.userJustification : "";
+
+        const scoreSelection = isCorrect ? selectionPoints : 0;
+        const scoreJustification = evaluateJustification(userJustification, q.keywords);
+        const currentQuestionScore = scoreSelection + scoreJustification;
         
         const row = [
             q.question,
             userAnswer ? userAnswer.selectedText : 'No respondida',
             q.answerOptions.find(opt => opt.isCorrect).text,
-            questionScore,
-            userAnswer && userAnswer.userJustification ? userAnswer.userJustification : 'No proporcionada'
+            scoreSelection,
+            scoreJustification,
+            currentQuestionScore,
+            userJustification.trim().length > 0 ? userJustification : 'No proporcionada',
+            q.justification
         ];
 
         const sanitizedRow = row.map(cell => sanitizeCsv(cell));
