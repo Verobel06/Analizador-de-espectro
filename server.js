@@ -39,7 +39,7 @@ app.get('/api/resultados/excel', (req, res) => {
     let csv = '\uFEFF'; // BOM para Excel
     // Encabezados generales
     csv += [
-        'Nombre', 'Apellido', 'Cédula', 'Puntuación', 'Puntuación Máxima', 'Pregunta', 'Respuesta Usuario', 'Respuesta Correcta', 'Es Correcta', 'Justificación Usuario', 'Justificación Correcta'
+        'Nombre', 'Apellido', 'Cédula', 'Email', 'Puntuación', 'Puntuación Máxima', 'Pregunta', 'Respuesta Usuario', 'Respuesta Correcta', 'Es Correcta', 'Justificación Usuario', 'Justificación Correcta', 'Puntuacion Seleccion', 'Puntuacion Justificacion', 'Puntuacion Total Pregunta'
     ].map(h => `"${h}"`).join(';') + '\n';
     resultados.forEach(r => {
         r.respuestas.forEach(resp => {
@@ -47,6 +47,7 @@ app.get('/api/resultados/excel', (req, res) => {
                 r.nombre,
                 r.apellido,
                 r.cedula,
+                r.email,
                 r.puntuacion,
                 r.puntuacionMaxima,
                 resp.pregunta,
@@ -54,11 +55,17 @@ app.get('/api/resultados/excel', (req, res) => {
                 resp.respuestaCorrecta,
                 resp.esCorrecta,
                 resp.justificacionUsuario,
-                resp.justificacionCorrecta
-            ].map(val => `"${(val + '').replace(/"/g, '""')}` ).join(';') + '\n';
+                resp.justificacionCorrecta,
+                resp.puntuacionSeleccion,
+                resp.puntuacionJustificacion,
+                resp.puntuacionTotalPregunta
+            ].map(val => `"${(val + '').replace(/"/g, '""')}"`).join(';') + '\n';
         });
     });
-    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
-    res.setHeader('Content-Disposition', 'attachment; filename="resultados_quiz.csv"');
+    res.header('Content-Type', 'text/csv; charset=utf-8');
+    res.header('Content-Disposition', 'attachment; filename="resultados.csv"');
     res.send(csv);
 });
+
+// Servir archivos estáticos como CSS, JS y assets
+app.use(express.static(__dirname));
