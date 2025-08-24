@@ -167,11 +167,11 @@ function showQuestion() {
     justificationTitle.textContent = "Justifique su respuesta";
     justificationTitle.style.marginTop = '20px';
 
-    const justificationInput = document.createElement('textarea');
-    justificationInput.classList.add('justification-area');
-    justificationInput.placeholder = "Escribe aquí tu justificación (máximo 200 letras)...";
-    justificationInput.id = `justification-${currentQuestionIndex}`;
-    justificationInput.oninput = () => updateJustificationAndCount();
+        const justificationInput = document.createElement('textarea');
+        justificationInput.classList.add('justification-area');
+        justificationInput.placeholder = "Escribe aquí tu justificación (máximo 200 letras)...";
+        justificationInput.id = `justification-${currentQuestionIndex}`;
+        justificationInput.oninput = () => updateJustificationAndCount();
     
     const wordCountDisplay = document.createElement('div');
     wordCountDisplay.classList.add('word-count');
