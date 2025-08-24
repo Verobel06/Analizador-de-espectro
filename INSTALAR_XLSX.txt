@@ -1,0 +1,3 @@
+// Este archivo se usa para instalar la librería xlsx
+// Ejecuta en tu terminal:
+// npm install xlsx
