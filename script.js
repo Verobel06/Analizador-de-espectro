@@ -150,12 +150,28 @@ function startQuiz() {
         input.style.border = '2px solid #bdc3c7';
     });
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const cedulaRegex = /^[0-9]+$/;
+    let isValid = true;
+
     if (!userName || !userLastname || !userCedula || !userEmail) {
+        alert('Por favor, completa todos los datos.');
+        isValid = false;
         if (!userName) document.getElementById('userNameInput').style.border = '2px solid #e74c3c';
         if (!userLastname) document.getElementById('userLastnameInput').style.border = '2px solid #e74c3c';
         if (!userCedula) document.getElementById('userCedulaInput').style.border = '2px solid #e74c3c';
         if (!userEmail) document.getElementById('userEmailInput').style.border = '2px solid #e74c3c';
-        alert('Por favor, completa todos los datos de manera adecuada antes de comenzar el quiz.');
+    } else if (!cedulaRegex.test(userCedula)) {
+        alert('La cédula debe contener solo números. Por favor, rellena bien los datos.');
+        isValid = false;
+        document.getElementById('userCedulaInput').style.border = '2px solid #e74c3c';
+    } else if (!emailRegex.test(userEmail)) {
+        alert('El correo electrónico debe tener el formato: "nombre@dominio.com". Por favor, rellena bien los datos.');
+        isValid = false;
+        document.getElementById('userEmailInput').style.border = '2px solid #e74c3c';
+    }
+    
+    if (!isValid) {
         return;
     }
 
