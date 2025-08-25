@@ -83,7 +83,7 @@ body {
 
 .start-btn {
     padding: 15px 30px;
-    background-color: #2ecc71;
+    background-color: #ff69b4; /* Este es un color rosa. Puedes usar cualquier código de color rosa que prefieras. */
     color: white;
     border: none;
     border-radius: 8px;
@@ -97,7 +97,7 @@ body {
 }
 
 .start-btn:hover {
-    background-color: #27ae60;
+    background-color: #ff1493; /* Un rosa más oscuro para el efecto de pasar el cursor */
     transform: scale(1.02);
 }
 
