@@ -39,13 +39,14 @@ app.get('/api/resultados/excel', (req, res) => {
     let csv = '\uFEFF'; // BOM para Excel
     // Encabezados generales
     csv += [
-        'Nombre', 'Apellido', 'Cédula', 'Email', 'Puntuación', 'Puntuación Máxima', 'Pregunta', 'Respuesta Usuario', 'Respuesta Correcta', 'Es Correcta', 'Justificación Usuario', 'Justificación Correcta', 'Puntuacion Seleccion', 'Puntuacion Justificacion', 'Puntuacion Total Pregunta'
+        'Nombre', 'Apellido', 'Escuela', 'Cédula', 'Email', 'Puntuación'
     ].map(h => `"${h}"`).join(';') + '\n';
     resultados.forEach(r => {
         r.respuestas.forEach(resp => {
             csv += [
                 r.nombre,
                 r.apellido,
+                r.escuela,
                 r.cedula,
                 r.email,
                 r.puntuacion,
