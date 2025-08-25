@@ -404,7 +404,7 @@ function showResults(respuestas, totalScore, totalPossibleScore) {
     }).join('');
 
     document.getElementById('quiz-content').innerHTML = `
-        <h2>Resultados</h2>
+        <h2>Resultados del Quiz</h2>
         <p>Tu puntuación es: ${totalScore} de ${totalPossibleScore}</p>
         ${resultHTML}
         
