@@ -1,6 +1,6 @@
 let currentQuestionIndex = 0;
 let userAnswers = {};
-let userName, userLastname, userCedula, userEmail;
+let userName, userLastname, userCedula, userEmail, userSchool;
 const totalPointsPerQuestion = 4;
 const selectionPoints = totalPointsPerQuestion / 2;
 const justificationPoints = totalPointsPerQuestion / 2;
@@ -143,6 +143,7 @@ function handleVisibilityChange() {
 function startQuiz() {
     userName = document.getElementById('userNameInput').value.trim();
     userLastname = document.getElementById('userLastnameInput').value.trim();
+    userSchool = document.getElementById('userSchoolInput').value.trim();
     userCedula = document.getElementById('userCedulaInput').value.trim();
     userEmail = document.getElementById('userEmailInput').value.trim();
 
@@ -154,11 +155,12 @@ function startQuiz() {
     const cedulaRegex = /^[0-9]+$/;
     let isValid = true;
 
-    if (!userName || !userLastname || !userCedula || !userEmail) {
+    if (!userName || !userLastname || !userSchool || !userCedula || !userEmail) {
         alert('Por favor, completa todos los datos.');
         isValid = false;
         if (!userName) document.getElementById('userNameInput').style.border = '2px solid #e74c3c';
         if (!userLastname) document.getElementById('userLastnameInput').style.border = '2px solid #e74c3c';
+        if (!userSchool) document.getElementById('userSchoolInput').style.border = '2px solid #e74c3c';
         if (!userCedula) document.getElementById('userCedulaInput').style.border = '2px solid #e74c3c';
         if (!userEmail) document.getElementById('userEmailInput').style.border = '2px solid #e74c3c';
     } else if (!cedulaRegex.test(userCedula)) {
@@ -334,6 +336,7 @@ function submitQuiz() {
     const payload = {
         nombre: userName,
         apellido: userLastname,
+        escuela: userSchool,
         cedula: userCedula,
         email: userEmail,
         puntuacion: totalScore,
@@ -398,7 +401,7 @@ function showResults(respuestas, totalScore, totalPossibleScore) {
         <h2>Resultados</h2>
         <p>Tu puntuación es: ${totalScore} de ${totalPossibleScore}</p>
         ${resultHTML}
-        <button class="download-btn" onclick="downloadCsv()">Descargar Resultados</button>
+       
     `;
     document.getElementById('next-btn').style.display = 'none';
     document.getElementById('prev-btn').style.display = 'none';
@@ -411,9 +414,9 @@ function generateCsv() {
     
     const sanitizeCsv = (text) => `"${(text + '').replace(/"/g, '""')}"`;
 
-    const infoHeaders = ["Nombre", "Apellido", "Cédula", "Email"];
+    const infoHeaders = ["Nombre", "Apellido", "Escuela", "Cédula", "Email"];
     csv += infoHeaders.map(header => sanitizeCsv(header)).join(';') + '\n';
-    csv += [sanitizeCsv(userName), sanitizeCsv(userLastname), sanitizeCsv(userCedula), sanitizeCsv(userEmail)].join(';') + '\n\n';
+    csv += [sanitizeCsv(userName), sanitizeCsv(userLastname), sanitizeCsv(userSchool), sanitizeCsv(userCedula), sanitizeCsv(userEmail)].join(';') + '\n\n';
 
     const quizHeaders = ["Pregunta", "Tu Respuesta", "Respuesta Correcta", "Puntuación Selección", "Puntuación Justificación", "Puntuación Total", "Tu Justificación", "Justificación Correcta"];
     csv += quizHeaders.map(header => sanitizeCsv(header)).join(';') + '\n';
