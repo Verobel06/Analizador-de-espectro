@@ -381,16 +381,22 @@ function submitQuiz() {
 }
 
 function showResults(respuestas, totalScore, totalPossibleScore) {
-    const resultHTML = respuestas.map(resp => {
+    const resultHTML = respuestas.map((resp, index) => {
         const feedbackClass = resp.esCorrecta ? 'correct' : 'incorrect';
+        const correctAnswerHtml = resp.esCorrecta ? '' : `<p>Respuesta correcta: ${resp.respuestaCorrecta}</p>`;
+        
         return `
             <div class="result-box">
-                <h3>Pregunta: ${resp.pregunta}</h3>
-                <p>Puntuación por selección: ${resp.puntuacionSeleccion}/${selectionPoints}</p>
-                <p>Puntuación por justificación: ${resp.puntuacionJustificacion}/${justificationPoints}</p>
-                <p>Puntuación total por pregunta: ${resp.puntuacionTotalPregunta}/${totalPointsPerQuestion}</p>
+                <h3>Pregunta ${index + 1}: ${resp.pregunta}</h3>
+                <div class="score-container">
+                    <p>Puntuación por selección: ${resp.puntuacionSeleccion}/${selectionPoints}</p>
+                    <div class="score-divider"></div>
+                    <p>Puntuación por justificación: ${resp.puntuacionJustificacion}/${justificationPoints}</p>
+                    <div class="score-divider"></div>
+                    <p>Puntuación total por pregunta: ${resp.puntuacionTotalPregunta}/${totalPointsPerQuestion}</p>
+                </div>
                 <p class="${feedbackClass}">Tu respuesta: ${resp.respuestaUsuario}</p>
-                <p>Respuesta correcta: ${resp.respuestaCorrecta}</p>
+                ${correctAnswerHtml}
                 <p>Tu justificación: ${resp.justificacionUsuario}</p>
                 <p>Justificación correcta: ${resp.justificacionCorrecta}</p>
             </div>
@@ -401,7 +407,7 @@ function showResults(respuestas, totalScore, totalPossibleScore) {
         <h2>Resultados</h2>
         <p>Tu puntuación es: ${totalScore} de ${totalPossibleScore}</p>
         ${resultHTML}
-       
+        <button class="download-btn" onclick="downloadCsv()">Descargar Resultados</button>
     `;
     document.getElementById('next-btn').style.display = 'none';
     document.getElementById('prev-btn').style.display = 'none';
