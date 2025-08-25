@@ -407,7 +407,7 @@ function showResults(respuestas, totalScore, totalPossibleScore) {
         <h2>Resultados</h2>
         <p>Tu puntuación es: ${totalScore} de ${totalPossibleScore}</p>
         ${resultHTML}
-        <button class="download-btn" onclick="downloadCsv()">Descargar Resultados</button>
+        
     `;
     document.getElementById('next-btn').style.display = 'none';
     document.getElementById('prev-btn').style.display = 'none';
