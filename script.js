@@ -25,12 +25,12 @@ const allQuizData = [
         "question": "¿Cuál de las siguientes afirmaciones describe correctamente la función de un componente clave en el diagrama de bloques de un analizador de espectro superheterodino?",
         "answerOptions": [
             {"text": "El oscilador local se encarga de rectificar la señal para la medición de amplitud.", "isCorrect": false},
-            {"text": "El filtro pasabajo (filtro imagen) rechaza señales fuera del rango de medición del instrumento para evitar lecturas erróneas.", "isCorrect": true},
+            {"text": "El filtro pasabajo rechaza señales fuera del rango de medición del instrumento para evitar lecturas erróneas.", "isCorrect": true},
             {"text": "El amplificador logarítmico ajusta el nivel de referencia y calibra la amplitud de la señal de entrada.", "isCorrect": false},
             {"text": "El atenuador calibrado tiene como principal objetivo suavizar el ruido presente en las medidas.", "isCorrect": false},
             {"text": "El filtro IF (Frecuencia Intermedia) se utiliza para limitar el nivel de potencia de la señal de entrada y optimizar el rango dinámico.", "isCorrect": false}
         ],
-        "justification": "El filtro pasabajo (filtro imagen) debe ser empleado para rechazar señales fuera del rango de medición del instrumento. Si no se incorporase, podrían entrar frecuencias indeseadas en el mezclador que serían trasladadas a la IF y provocarían una lectura y medida erróneas.",
+        "justification": "El filtro pasabajo debe ser empleado para rechazar señales fuera del rango de medición del instrumento. Si no se incorporase, podrían entrar frecuencias indeseadas en el mezclador que serían trasladadas a la IF y provocarían una lectura y medida erróneas.",
         "keywords": ["filtro pasabajo", "filtro imagen", "rechaza señales", "evitar lecturas erróneas"]
     },
     {
@@ -46,7 +46,7 @@ const allQuizData = [
         "keywords": ["descomponer", "componentes armónicas", "dominio frecuencial", "espectro de frecuencias"]
     },
     {
-        "question": "En el diagrama de bloques de un analizador de espectro superheterodino, ¿cuál es la función ideal del mezclador al combinar la señal de entrada (vRF(t)) con la señal del oscilador local (vOL(t))?",
+        "question": "En el diagrama de bloques de un analizador de espectro superheterodino, ¿cuál es la función ideal del mezclador al combinar la señal de entrada con la señal del oscilador local?",
         "answerOptions": [
             {"text": "Amplificar la señal de entrada para mejorar la sensibilidad.", "isCorrect": false},
             {"text": "Filtrar las frecuencias no deseadas antes de la amplificación.", "isCorrect": false},
